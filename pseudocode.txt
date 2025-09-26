@@ -1,0 +1,355 @@
+
+BEGIN
+
+Import all modules
+
+#This is where the program fetches the local monitor resolution and the screen is setup
+resolution = get_resolution()
+screen = display.set_screen((resolution.width,resolution.height))
+background = set.image(background_image.png)
+clock = time.clock()         #(Setting the program to run at 60fps)
+alive = True
+
+
+class Player
+    procedure __init__(self)
+        self.pos = (resolution.width // 2,resolution.height // 2)
+        self.image = set.image(player_base_image.png)
+        self.base_image = self.image
+        self.rect = Get.rect(self.image)
+        self.size = 1
+        self.speed = 1
+        self.attack_frames = [frame1.png, frame2.png, frame3.png, frame4.png, frame5.png, frame6.png, frame7.png, frame8.png, frame9.png, frame10.png]
+        self.attack_animate = False
+    endprocedure
+
+    procedure player_rotation()
+        self.mouse_coords = mouse.get_pos()
+        self.x_difference = self.mouse_coords[0] - self.pos[0]
+        self.y_difference = self.mouse_coords[1] - self.pos[1]
+        self.angle = aTan(x_difference / y_difference)
+        self.image = rotate(self.image, self.angle)
+        self.rect.centre = self.pos
+    endprocedure
+
+
+    procedure user_input()
+        self.velocity_x = 0
+        self.velocity_y = 0
+
+        keys = get.keypresses()
+        #for sneaking and walking slower
+        if keys == 'CTRL' then 
+            self.speed = self.speed MOD 2
+        endif
+        #for directional player movement, the velocity variables will be updated which will added/subtracted to the player pos when movement is updated
+        if keys == 'W' then    
+            self.velocity_y = -self.speed
+        endif
+        if keys == 'A' then    
+            self.velocity_x = -self.speed
+        endif
+        if keys == 'S' then    
+            self.velocity_y = self.speed
+        endif
+        if keys == 'D' then    
+            self.velocity_x = self.speed
+        endif
+
+        self.speed = 1 #resetting speed if it changed when CTRL is held
+
+
+        if self.velocity_x != 0 and self.velocity_y != 0 then
+            self.moving = True
+        elseif self.velocity_x != 0 and self.velocity_y != 0 then
+            self.velocity_x = self.velocity_x / (square root 2)
+            self.velocity_y = self.velocity_y / (square root 2)
+        else then
+            self.moving = False
+        endif
+
+        mouse = get.mouse_presses()
+        if mouse == pressed then
+            self.attack_animate = True
+    endprocedure
+
+    procedure collisions_check()
+        for object in objects
+            if rect.collide(object) and self.pos[0] > object.pos[0] then
+                self.velocity_x = self.speed
+            endif
+            if rect.collide(object) and pos[0] < object.pos[0] then
+                self.velocity_x = -self.speed
+            endif
+            if rect.collide(object) and pos[1] > object.pos[1] then
+                self.velocity_y = self.speed
+            endif
+            if rect.collide(object) and pos[1] < object.pos[1] then
+                self.velocity_y = -self.speed
+            endif
+        next object
+
+        if rect.collide(object.level_exit) then
+            level.current_level += 1 
+            level.update_level()
+        endif
+        
+        for enemy in enemies
+            if rect.collide(enemy.cone_rect) then
+                frames_in_cone -= 1 
+            else then
+                frames_in_cone = 60
+            endif
+        if frames_in_cone <= 0 then 
+            level.game_over()
+        endif
+    endprocedure
+
+
+    #This is where the position of the player is updated with the recent movements detected in user_input
+    procedure move()
+        // self.pos[0] = self.pos[0] + self.velocity_x
+        // self.pos[1] = self.pos[1] + self.velocity_y
+        self.general_offset = (-self.velocity_x, -self.velocity_y)
+    endprocedure
+    
+
+    #This is where all of the player functions will be updated each frame as update() is called in the game loop
+    procedure update()
+        self.user_input()
+        self.move()
+        self.player_rotation()
+
+        if self.attack_animate == True then 
+            self.frame += 1 
+            if self.frame > 0 and self.frame < 11 then
+                self.image = self.attack_frames[self.frame]
+        elif self.frame >= 11 then 
+            self.attack_animate = False
+            self.image = self.base_image
+    endprocedure
+endclass
+
+class Enemy
+    procedure __init__(self, position, route, level)
+        self.pos = position
+        self.image = set.image('Enemy_base_image.png')
+        self.rect = Get.rect(self.image)
+        self.size = 1
+        self.speed = 1
+        self.route = route
+        self.cone_image = set.image('cone.png')
+        self.cone_rect = Get.rect(self.cone_image)
+        self.native_level = level
+    endprocedure
+
+    procedure move(route)
+        for enemy in enemies 
+            if self.route == 1 then
+                route_destinations = [(100,100), (100,200), (200,200), (200,100)]
+            elseif self.route == 2 then
+                route_destinations = [(300,300), (400,400), (500,500), (400,400)]
+            endif
+        
+            for i in route_destinations 
+                if self.pos == route_destinations[-1] then
+                    self.destination = rouute_destinations[0]
+
+                elif self.pos == route_destinations[i] then
+                    self.destination = route_destinations[i+1]
+                endif
+            next i 
+
+            if self.pos[0] != self.destination[0] then
+                if self.pos[0] > self.destination[0] then
+                    self.pos[0] = self.pos[0] + 1
+                elseif self.pos[0] < self.destination[0] then
+                    self.pos[0] = self.pos[0] - 1
+                endif
+            endif
+
+            if self.pos[1] != self.destination[1] then
+                if self.pos[1] > self.destination[1] then
+                    self.pos[1] = self.pos[1] + 1
+                elseif self.pos[1] < self.destination[1] then
+                    self.pos[1] = self.pos[1] - 1
+                endif
+            endif
+        next enemy
+    endprocedure
+
+    procedure rotation()
+        for enemy in enemies
+            self.x_difference = self.destination[0] - self.pos[0]
+            self.y_difference = self.destination[1] - self.pos[1]
+            self.angle = atan2(self.x_difference , self.y_difference)
+            self.image = rotate(self.image, self.angle)
+        next enemy
+    endprocedure
+
+    procedure draw_cone()
+        for enemy in enemies
+            self.cone_rect.center = self.pos
+            screen.draw(self.cone_image, self.cone_rect)
+        next enemy
+    endprocedure
+
+    procedure update()
+        self.move()
+        self.rotation()
+        self.draw_cone()       
+    endprocedure 
+endclass        
+
+class Level
+    procedure __init__(self)
+        self.current_level = 0
+        level_backgrounds = [background_image0.png, background_image1.png, background_image2.png]
+        self.offset = (0,0)
+        background = level_backgrounds[current_level]
+        self.floor_rect = image.get_rect(background)
+        self.end_screen = image.set('gameover.png')
+    endprocedure
+
+    procedure update_level()
+        background = level_backgrounds[self.current_level]
+        for object in objects
+            if object.native_level != self.current_level then
+                objects.remove[object]
+            endif
+        next object
+        for enemy in enemies
+            if enemy.native_level != self.current_level then
+                enemies.remove[enemy]
+            endif
+        next enemy
+        for object in object_library
+            if object.native_level == self.current_level then
+                objects.append[object]
+            endif
+        next object
+        for enemy in enemy_library
+            if enemy.native_level == self.current_level then
+                enemies.append[object]
+            endif
+        next object
+    endprocedure
+
+    procedure game_over()
+        alive = False
+        screen.draw('game_over.png')
+    endprocedure
+
+    procedure camera()
+        self.floor_rect = floor_rect + player.general_offset
+        screen.blit(background, self.floor_rect)
+
+        for sprite in all_sprites
+            offset_pos = (0,0)
+            offset_pos = sprite.rect.center + player.general_offset
+            sprite.pos = offset_pos
+            sprite.rect.center = sprite.pos
+        next sprite
+    endprocedure()
+endclass
+
+class Object
+    procedure __init__(self, position, type, level)
+        self.native_level = level
+        self.pos = (position)
+        if type = crate then 
+            self.image = set.image('crate.png')
+        endif
+        if type = horizontal_wall then
+            self.image = set.image('horizontal_wall.png')
+        endif
+        if type = vertical_wall then
+            self.image = set.image('vertical_wall.png')
+        endif
+        if type = level_exit then
+            self.image = set.image('level_exit.png')
+        endif
+        self.rect = get.rect(self.image)
+    endprocedure
+endclass
+
+class Menu
+    procedure __init__(self)
+        self.bg_image = set.image("menu_bg.png")
+        self.button = set.image("button.png")
+        self.button_rect = get_rect(self.button)
+    endprocedure
+
+    procedure button
+        self.mouse_coords = mouse.get_pos()
+        mouse = get.mouse_presses()
+        if mouse == pressed AND self.button_rect.left <= self.mouse_coords[0] <= self.button_rect.right AND self.button_rect.top <= self.mouse_coords[1] <= self.button_rect.bottom then 
+            start_game = True
+        endif
+    endprocedure
+endclass
+            
+
+
+
+
+player = class.Player()
+menu = class.Menu()
+
+enemy_library = []
+enemy_library.append(Enemy((100,100), 1, 0))
+enemy_library.append(Enemy((300,300), 2, 0))
+
+enemy_library.append(Enemy((100,100), 2, 1))
+enemy_library.append(Enemy((300,300), 2, 1))
+
+object_library = []
+object_library.append(Object((500,500), crate, 0))
+object_library.append(Object((700,700), horizontal_wall, 0))
+object_library.append(Object((700,400), vertical_wall, 0))
+object_library.append(Object((900,400), vertical_wall, 0))
+object_library.append(Object((1000,200), level_exit, 0))
+
+object_library.append(Object((140,200), crate, 1))
+object_library.append(Object((700,700), horizontal_wall, 1))
+object_library.append(Object((700,400), vertical_wall, 1))
+object_library.append(Object((900,400), vertical_wall, 1))
+object_library.append(Object((1000,200), level_exit, 1))
+
+enemies = []
+objects = []
+
+level.update_level()
+
+all_sprites = sprite.group()
+for enemy in enemy_library
+    all_sprites.add(enemy)
+next enemy
+for object in object_library
+    all_sprites.add(object)
+next object
+allsprite.add(player)
+
+while True == True  
+    for event in get.events
+        if event == event.quit() then
+            quit()
+        endif
+    next event
+    if start_game == True
+        if alive == True then
+            screen.draw(background, (0,0))
+            all_sprites.draw(screen)
+            level.camera()
+            player.update()
+            enemy.update()
+        if alive == False then
+            screen.draw('game_over.png')
+        endif
+    elif start_game == False
+        menu.button()
+        screen.draw(menu.bg_image, (0,0))
+        screen.draw(menu.button, (resolution.width // 2, resolution.height // 2))
+    endif
+    display.update()
+endwhile

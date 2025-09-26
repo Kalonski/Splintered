@@ -1,0 +1,65 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "Level images/Level1.tmx",
+    "expandedProjectPaths": [
+        ".",
+        "Level images"
+    ],
+    "exportAsImage.useCurrentScale": false,
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+        "Level images/Level1.tmx": {
+            "scale": 0.75,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 622.6666666666666,
+                "y": 109.33333333333337
+            }
+        },
+        "Level images/testmap1.tmx": {
+            "scale": 0.5,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 965,
+                "y": 717
+            }
+        },
+        "Tiles test.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1.5,
+            "scaleInEditor": 1
+        },
+        "Wall set.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        }
+    },
+    "last.exportedFilePath": "C:/Users/waufa/OneDrive - Dronfield Henry Fanshawe School/H Drive/Y13/Computer Science/NEA/Splintered/Assets/Level images",
+    "last.imagePath": "C:/Users/waufa/OneDrive - Dronfield Henry Fanshawe School/H Drive/Y13/Computer Science/NEA/Splintered/Assets/HLM1/Floor tiles",
+    "map.height": 100,
+    "map.lastUsedExportFilter": "All Files (*)",
+    "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "map.width": 100,
+    "openFiles": [
+        "Level images/Level1.tmx"
+    ],
+    "project": "HLM1 Tiled.tiled-project",
+    "recentFiles": [
+        "Level images/Level1.tmx",
+        "Wall set.tsx",
+        "Tiles test.tsx",
+        "Level images/testmap1.tmx"
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    },
+    "tileset.type": 1
+}
